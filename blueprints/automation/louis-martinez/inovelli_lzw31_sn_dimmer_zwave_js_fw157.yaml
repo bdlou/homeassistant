@@ -1,0 +1,136 @@
+blueprint:
+  name: Inovelli Red Series LZW31-SN Dimmer (ZWave-JS, FW v1.57)
+  description: Create automations for the Inovelli Red Series LZW31-SN Dimmer using the ZWave-JS integration, compatible with firmware v1.57 and newer numeric value outputs.
+  domain: automation
+  input:
+    inovelli_switch:
+      name: Inovelli Dimmer
+      description: "List of available inovelli LZW31-SN dimmers."
+      selector:
+        device:
+          integration: zwave_js
+          manufacturer: Inovelli
+          model: LZW31-SN
+
+    config_button:
+      name: Button C - Config press 1x
+      default: []
+      selector:
+        action: {}
+    button_a:
+      name: Button A - Up/On press 1x
+      default: []
+      selector:
+        action: {}
+    button_b:
+      name: Button B - Down/Off press 1x
+      default: []
+      selector:
+        action: {}
+    button_a_held:
+      name: Button A - Up/On held down
+      default: []
+      selector:
+        action: {}
+    button_b_held:
+      name: Button B - Down/Off held down
+      default: []
+      selector:
+        action: {}
+    button_a2:
+      name: Button A - Up/On press 2x
+      default: []
+      selector:
+        action: {}
+    button_b2:
+      name: Button B - Down/Off press 2x
+      default: []
+      selector:
+        action: {}
+    button_a3:
+      name: Button A - Up/On press 3x
+      default: []
+      selector:
+        action: {}
+    button_b3:
+      name: Button B - Down/Off press 3x
+      default: []
+      selector:
+        action: {}
+    button_a4:
+      name: Button A - Up/On press 4x
+      default: []
+      selector:
+        action: {}
+    button_b4:
+      name: Button B - Down/Off press 4x
+      default: []
+      selector:
+        action: {}
+    button_a5:
+      name: Button A - Up/On press 5x
+      default: []
+      selector:
+        action: {}
+    button_b5:
+      name: Button B - Down/Off press 5x
+      default: []
+      selector:
+        action: {}
+
+mode: single
+max_exceeded: silent
+
+variables:
+  device_id: !input inovelli_switch
+
+trigger:
+  - platform: event
+    event_type: zwave_js_value_notification
+
+condition: "{{ trigger.event.data.device_id == device_id }}"
+
+action:
+  - variables:
+      button_id: "{{ trigger.event.data.property_key_name }}"
+      press_count: "{{ trigger.event.data.value }}"
+  - service: logbook.log
+    data:
+      name: "Button Id"
+      message: "{{ button_id }}"
+  - service: logbook.log
+    data:
+      name: "Press Count"
+      message: "{{ press_count }}"
+  - service: logbook.log
+    data:
+      name: "Device"
+      message: "{{ trigger.event.data.device_id }}"
+
+  - choose:
+      - conditions: '{{ button_id == "003" and press_count == 0 }}'
+        sequence: !input config_button
+      - conditions: '{{ button_id == "002" and press_count == 0 }}'
+        sequence: !input button_a
+      - conditions: '{{ button_id == "001" and press_count == 0 }}'
+        sequence: !input button_b
+      - conditions: '{{ button_id == "002" and press_count == 2 }}'
+        sequence: !input button_a_held
+      - conditions: '{{ button_id == "001" and press_count == 2 }}'
+        sequence: !input button_b_held
+      - conditions: '{{ button_id == "002" and press_count == 3 }}'
+        sequence: !input button_a2
+      - conditions: '{{ button_id == "001" and press_count == 3 }}'
+        sequence: !input button_b2
+      - conditions: '{{ button_id == "002" and press_count == 4 }}'
+        sequence: !input button_a3
+      - conditions: '{{ button_id == "001" and press_count == 4 }}'
+        sequence: !input button_b3
+      - conditions: '{{ button_id == "002" and press_count == 5 }}'
+        sequence: !input button_a4
+      - conditions: '{{ button_id == "001" and press_count == 5 }}'
+        sequence: !input button_b4
+      - conditions: '{{ button_id == "002" and press_count == 6 }}'
+        sequence: !input button_a5
+      - conditions: '{{ button_id == "001" and press_count == 6 }}'
+        sequence: !input button_b5
